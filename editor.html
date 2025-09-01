@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Easbroidery — Editor</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body class="editor-shell">
+  <!-- Top bar -->
+  <header class="eb-topbar" role="banner">
+    <div class="eb-topbar__left">
+      <a href="index.html" class="eb-brand">
+        <img src="assets/logo.png" alt="Easbroidery" class="eb-brand__logo">
+        <span class="eb-brand__name">Easbroidery</span>
+      </a>
+    </div>
+    <div class="eb-topbar__center">
+      <button id="uploadMainBtn" class="eb-btn eb-btn--primary" type="button">Upload photo</button>
+      <input id="fileInput" type="file" accept="image/*" hidden />
+    </div>
+    <div class="eb-topbar__right">
+      <button id="panelToggle" class="eb-iconbtn eb-tools-toggle" aria-expanded="true" aria-controls="toolSettings">
+        <span class="chev">▾</span><span class="lbl">Tool Settings</span>
+      </button>
+      <button id="saveBtn"   class="eb-btn eb-btn--secondary" type="button">Save</button>
+      <button id="exportBtn" class="eb-btn eb-btn--secondary" type="button">Export</button>
+    </div>
+  </header>
+
+  <main class="eb-layout" role="main">
+    <!-- Left rail -->
+    <aside class="eb-rail" aria-label="Tools">
+      <!-- top-left controls -->
+      <section class="eb-controls">
+        <div class="ctrl">
+          <label class="ctrl__label" for="hoopSize">Hoop size</label>
+          <select id="hoopSize" class="ctrl__select">
+            <option value="4x4" selected>4" × 4"</option>
+            <option value="5x7">5" × 7"</option>
+            <option value="6x10">6" × 10"</option>
+            <option value="8x12">8" × 12"</option>
+          </select>
+        </div>
+
+        <div class="ctrl">
+          <label class="ctrl__label" for="fileType">File type</label>
+          <select id="fileType" class="ctrl__select">
+            <option value="DST" selected>DST</option>
+            <option value="PES">PES</option>
+            <option value="JEF">JEF</option>
+            <option value="EXP">EXP</option>
+            <option value="VP3">VP3</option>
+            <option value="XXX">XXX</option>
+            <option value="HUS">HUS</option>
+            <option value="PEC">PEC</option>
+          </select>
+          <p id="fileTypeHint" class="hint">Tajima compatible</p>
+        </div>
+
+        <label class="row ctrl__checkbox">
+          <input id="showDirGlobal" type="checkbox">
+          <span>Show stitch direction</span>
+        </label>
+      </section>
+
+      <!-- Tools, book order: Select, Move, Shapes, Draw, Text, Layers -->
+      <ul class="eb-tools eb-tools--grid" role="toolbar" aria-orientation="vertical">
+        <li><button class="eb-tool is-active" data-tool="select" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M6 4l12 8-12 8z"/></svg><span>Select</span></button></li>
+        <li><button class="eb-tool" data-tool="move"><svg viewBox="0 0 24 24"><path d="M12 2l3 3-2 0 0 4 4 0 0-2 3 3-3 3 0-2-4 0 0 4 2 0-3 3-3-3 2 0 0-4-4 0 0 2-3-3 3-3 0 2 4 0 0-4-2 0z"/></svg><span>Move</span></button></li>
+        <li><button class="eb-tool" data-tool="shapes"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v8h-8zM13 13l4-4 4 4-4 4z"/></svg><span>Shapes</span></button></li>
+        <li><button class="eb-tool" data-tool="draw"><svg viewBox="0 0 24 24"><path d="M20 4l-6 6 2 2 6-6zM4 20c3 0 4-2 5-3l6-6-2-2-6 6c-1 1-3 2-3 5z"/></svg><span>Draw</span></button></li>
+        <li><button class="eb-tool" data-tool="text"><svg viewBox="0 0 24 24"><path d="M4 6V4h16v2h-7v14h-2V6H4z"/></svg><span>Text</span></button></li>
+        <li><button class="eb-tool" data-tool="layers" id="layersBtn"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5zm0 8l9 5-9 5-9-5 9-5z"/></svg><span>Layers</span></button></li>
+      </ul>
+
+      <button id="autoBtn" class="eb-btn eb-btn--accent" type="button">Auto highlight subject</button>
+      <button id="removeBgAction" class="eb-btn eb-btn--ghost" type="button" disabled>Remove background</button>
+
+      <section class="eb-loom" aria-label="Loom preview">
+        <h2 class="eb-loom__title">Loom preview</h2>
+        <div class="eb-loom__card">
+          <canvas id="loomPreviewCanvas" width="180" height="160" aria-label="Mini hoop live preview"></canvas>
+        </div>
+        <button id="loomPreviewEnlarge" class="eb-btn eb-btn--ghost">Enlarge</button>
+      </section>
+    </aside>
+
+    <!-- Center: stage -->
+    <section class="eb-stage" aria-label="Editor canvas">
+      <div id="canvasWrap" class="eb-canvas-wrap">
+        <img id="imgLayer" alt="" />
+        <canvas id="imgCanvas"></canvas>
+        <canvas id="maskCanvas"></canvas>
+        <canvas id="textCanvas"></canvas>
+      </div>
+    </section>
+
+    <!-- Right: tool settings -->
+    <aside id="toolSettings" class="eb-context" aria-label="Tool settings">
+      <div class="eb-context__head"><h3>Tool settings</h3></div>
+
+      <!-- SELECT -->
+      <div class="panel" data-panel="select">
+        <div class="group">
+          <div class="btnrow" id="selectModes">
+            <button class="chipbtn is-active" data-mode="wand" title="Magic Wand">
+              <svg viewBox="0 0 24 24"><path d="M2 20l6-6 2 2-6 6zM11 11l7-7 2 2-7 7z"/></svg><span>Wand</span>
+            </button>
+            <button class="chipbtn" data-mode="lasso" title="Lasso">
+              <svg viewBox="0 0 24 24"><path d="M12 4C7 4 4 7 4 10s3 6 8 6 8-3 8-6-3-6-8-6z"/></svg><span>Lasso</span>
+            </button>
+            <button class="chipbtn" data-mode="refine" title="Refine brush">
+              <svg viewBox="0 0 24 24"><path d="M20 4l-6 6 2 2 6-6zM4 20c3 0 4-2 5-3l6-6-2-2-6 6c-1 1-3 2-3 5z"/></svg><span>Refine</span>
+            </button>
+          </div>
+        </div>
+        <div class="group" id="selectWandGroup">
+          <label>Tolerance</label><input id="wandTol" type="range" min="1" max="80" value="24">
+          <label class="row"><input id="showMask" type="checkbox"> Show mask overlay</label>
+        </div>
+        <div class="group hidden" id="selectRefineGroup">
+          <label>Refine size</label><input id="refineSize" type="range" min="4" max="80" value="24">
+        </div>
+      </div>
+
+      <!-- MOVE -->
+      <div class="panel hidden" data-panel="move">
+        <div class="group">
+          <label class="row"><input id="moveEnable" type="checkbox" checked> Drag items on canvas</label>
+          <p class="hint">Use this to reposition created layers.</p>
+        </div>
+      </div>
+
+      <!-- DRAW -->
+      <div class="panel hidden" data-panel="draw">
+        <div class="group">
+          <label>Brush size</label><input id="brushSize" type="range" min="2" max="80" value="24">
+          <label class="row"><input id="showEdges" type="checkbox" checked> Show grid</label>
+        </div>
+      </div>
+
+      <!-- TEXT -->
+      <div class="panel hidden" data-panel="text">
+        <div class="group">
+          <label>Text</label><input id="textInput" type="text" placeholder="Your text">
+          <button id="textApply" class="eb-btn eb-btn--secondary" type="button">Apply</button>
+        </div>
+        <div class="group">
+          <label>Size</label><input id="textSize" type="range" min="8" max="200" value="64">
+          <label>Curve</label><input id="textCurve" type="range" min="0" max="180" value="60">
+        </div>
+      </div>
+
+      <!-- SHAPES -->
+      <div class="panel hidden" data-panel="shapes">
+        <div class="group">
+          <div class="btnrow" id="shapeBtns">
+            <button class="chipbtn is-active" data-shape="rect" title="Rectangle">
+              <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" /></svg><span>Rect</span>
+            </button>
+            <button class="chipbtn" data-shape="circle" title="Circle">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/></svg><span>Circle</span>
+            </button>
+            <button class="chipbtn" data-shape="triangle" title="Triangle">
+              <svg viewBox="0 0 24 24"><path d="M12 5l8 14H4z"/></svg><span>Triangle</span>
+            </button>
+          </div>
+        </div>
+        <div class="group">
+          <label>Stroke width</label><input id="shapeStroke" type="range" min="0" max="20" value="2">
+        </div>
+      </div>
+
+      <!-- LAYERS -->
+      <div class="panel hidden" data-panel="layers">
+        <div class="group">
+          <button id="layerFromSelection" class="eb-btn eb-btn--secondary" type="button" disabled>Create layer from selection</button>
+        </div>
+        <div class="group">
+          <label>Layers</label>
+          <div id="layerPills" class="pillrow"></div>
+        </div>
+        <div class="group">
+          <label class="row"><input id="layerMoveToggle" type="checkbox"> Drag to move</label>
+          <label>Direction angle</label><input id="layerAngle" type="range" min="-90" max="90" value="45">
+          <label class="row"><input id="layerRemoveBg" type="checkbox"> Remove background for this layer</label>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Bottom status bar -->
+  <footer class="eb-status" role="contentinfo">
+    <div class="eb-status__group">
+      <button id="zoomOut" class="eb-iconbtn" aria-label="Zoom out">−</button>
+      <span id="zoomPct">100%</span>
+      <button id="zoomIn" class="eb-iconbtn" aria-label="Zoom in">+</button>
+      <span id="statusHoop">4.0" × 4.0</span>
+      <span id="statusStitches">0 stitches</span>
+    </div>
+    <button id="btnConvert" class="eb-btn eb-btn--primary">Convert</button>
+  </footer>
+
+  <!-- Enlarge preview modal -->
+  <dialog id="previewModal" class="eb-modal" aria-label="Loom preview">
+    <div class="eb-modal__head">
+      <h4>Loom preview</h4>
+      <button id="previewModalClose" class="eb-iconbtn" aria-label="Close">✕</button>
+    </div>
+    <div class="eb-modal__body">
+      <canvas id="loomPreviewLarge" width="1000" height="740" aria-label="Large hoop preview"></canvas>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+  <script src="script.upload.js"></script>
+  <script src="script.preview.js"></script>
+  <script src="script.draw.js"></script>
+  <script src="processing.js"></script>
+  <script src="editor.ui.js"></script>
+</body>
+</html>

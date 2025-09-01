@@ -1,0 +1,104 @@
+/* Shell */
+.editor-shell{
+  --topbar-h:60px; --status-h:60px;
+  --eb-border:rgba(0,0,0,.12); --eb-bg:#f7efe6; --eb-panel:#f4eadf; --eb-text:#333; --eb-accent:#8ea9bb;
+  background:var(--eb-bg); color:var(--eb-text);
+  min-height:100dvh; height:100dvh;
+  display:grid; grid-template-rows:var(--topbar-h) 1fr var(--status-h);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+}
+
+/* Top bar */
+.eb-topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:var(--topbar-h);padding:0 12px;border-bottom:1px solid var(--eb-border);background:var(--eb-panel)}
+.eb-topbar__left{display:flex;align-items:center;min-width:0}
+.eb-topbar__center{display:flex;justify-content:center}
+.eb-topbar__right{display:flex;gap:8px;justify-content:flex-end}
+.eb-brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;min-width:0}
+.eb-brand__logo{height:28px}
+.eb-brand__name{font-weight:700;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Buttons */
+.eb-btn{border:1px solid var(--eb-border);border-radius:10px;padding:8px 14px;background:#e8ded3}
+.eb-btn--primary{background:#8ea9bb;color:#fff;border-color:transparent}
+.eb-btn--secondary{background:#fff}
+.eb-btn--accent{background:#ffd7a2;border-color:#e7b36e}
+.eb-btn--ghost{background:#fff;border:1px solid var(--eb-border);width:100%}
+.eb-iconbtn{border:1px solid var(--eb-border);background:#fff;border-radius:8px;padding:6px 10px;line-height:1}
+
+/* Layout */
+.eb-layout{display:grid;grid-template-columns:320px 1fr 340px; min-height:0;}
+.eb-rail{border-right:1px solid var(--eb-border);background:var(--eb-panel);padding:12px;display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto}
+.eb-context{border-left:1px solid var(--eb-border);background:var(--eb-panel);padding:0 0 16px 0;min-height:0;overflow:auto}
+.eb-context__head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--eb-border)}
+.hidden{display:none !important}
+
+/* Controls block */
+.eb-controls{display:grid;gap:10px;padding:8px;border:1px solid var(--eb-border);border-radius:12px;background:#fff}
+.ctrl{display:flex;flex-direction:column;gap:4px}
+.ctrl__label{font-size:12px;color:#555}
+.ctrl__select{border:1px solid var(--eb-border);border-radius:10px;padding:8px;background:#f9f6f2}
+.ctrl__checkbox{gap:8px;align-items:center;margin-top:2px}
+.hint{margin:2px 0 0 0;font-size:12px;color:#7a7a7a}
+
+/* Tools */
+.eb-tools{list-style:none;padding:0;margin:0}
+.eb-tools--grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.eb-tool{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:1px solid var(--eb-border);background:#fff;border-radius:12px}
+.eb-tool svg{width:18px;height:18px;fill:#5c5c5c}
+.eb-tool.is-active{outline:2px solid var(--eb-accent)}
+
+/* Loom preview */
+.eb-loom__title{font-size:16px;margin:8px 4px}
+.eb-loom__card{border:3px solid #bfb7b0;border-radius:22px;background:#f6e9de;padding:8px;display:flex;justify-content:center;align-items:center}
+
+/* Stage + stack */
+.eb-stage{position:relative;min-height:0;overflow:auto;padding:8px 8px calc(var(--status-h) + 8px) 8px}
+.eb-canvas-wrap{position:relative;height:100%;min-height:calc(100dvh - var(--topbar-h) - var(--status-h) - 32px);margin:8px;background:#efe4d9;border:1px solid var(--eb-border);border-radius:12px;padding:16px}
+#canvasWrap{position:relative;height:100%;transform-origin:top left}
+
+/* Transparent canvases */
+#canvasWrap canvas, #canvasWrap #imgLayer{position:absolute;inset:0;border-radius:8px}
+#imgLayer{z-index:0;width:100%;height:100%;object-fit:contain;display:block}
+#imgCanvas{z-index:1;background:transparent !important}
+#maskCanvas{z-index:2;background:transparent !important}
+#textCanvas{z-index:3;background:transparent !important}
+#maskCanvas.is-hidden{opacity:0;pointer-events:none}
+
+/* Status bar */
+.eb-status{position:sticky;bottom:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-top:1px solid var(--eb-border);background:var(--eb-panel)}
+.eb-status__group{display:flex;gap:16px;align-items:center}
+
+/* Tool Settings toggle arrow */
+.eb-tools-toggle{display:flex;align-items:center;gap:6px}
+.eb-tools-toggle .chev{transition:transform .15s ease}
+.editor-shell.context-collapsed .eb-tools-toggle .chev{transform:rotate(-90deg)}
+
+/* Modal backdrop */
+.eb-modal::backdrop{background:rgba(0,0,0,.35)}
+
+/* Collapse settings */
+.editor-shell.context-collapsed .eb-context{display:none}
+.editor-shell.context-collapsed .eb-layout{grid-template-columns:320px 1fr}
+
+/* Phones */
+@media (max-width:640px){
+  .eb-layout{grid-template-columns:1fr}
+  .eb-context{display:none}
+  .eb-topbar{grid-template-columns:auto 1fr auto}
+  .eb-brand__name{display:none}
+}
+
+/* Shell and shared rules remain from previous version */
+
+/* New button rows inside settings */
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.chipbtn{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--eb-border);border-radius:10px;background:#fff}
+.chipbtn svg{width:16px;height:16px;fill:#555}
+.chipbtn.is-active{outline:2px solid var(--eb-accent)}
+
+/* Layer pills */
+.pillrow{display:flex;gap:6px;flex-wrap:wrap}
+.pillrow .pill{padding:6px 10px;border:1px solid var(--eb-border);border-radius:999px;background:#fff;cursor:pointer}
+.pillrow .pill.is-active{background:#8ea9bb;color:#fff;border-color:#8ea9bb}
+
+/* Keep previous editor.css content below unchanged */

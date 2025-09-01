@@ -1,0 +1,5 @@
+2025-08-31: Conversion AI + Machine Export
+- Added /editor/js/dst.js : Tajima DST exporter (experimental but readable by common software)
+- Added /editor/js/conversion.js : AI pipeline (BodyPix segmentation) + scanline fill + one-click convert
+- Updated /editor/index.html : added "AI Convert", "Export DST", spacing and mm/px controls, and ImageTracer CDN
+- Updated /editor/js/editor.js : expose canvas and bind conversion buttons

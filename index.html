@@ -1,94 +1,85 @@
-
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Easbroidery – Photo → Embroidery</title>
-  <link rel="stylesheet" href="style.css" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- optional Google font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-</head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Easbroidery — Digitize photos into embroidery files</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Let the hero area expand full width */
+    .hero {
+      display: flex;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .hero__grid.card {
+      width: 100%;          /* take all available width */
+      max-width: 1400px;    /* optional cap so it doesn’t stretch too far */
+      margin: 0 auto;
+    }
+    .hero__example img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
 
-<body>
-  <header>
-    <h1>EASBROIDERY</h1>
-    <nav>
-      <a href="#home">Home</a>
-      <a href="#features">Features</a>
-      <a href="#pricing">Pricing</a>
+    /* inset: left alone */
+    .hero__inset {
+      position: absolute;
+      top: 45%;
+      left: 30%;
+      transform: translate(-50%, -50%);
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 5px solid #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      pointer-events: none;
+    }
+    .hero__inset img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body class="theme-peach">
+  <header class="site-header">
+    <a href="index.html" class="brand">
+      <img src="assets/logo.png" alt="Easbroidery" class="brand__logo" />
+      <span class="brand__name">EASBROIDERY</span>
+    </a>
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="pricing.html">Pricing</a>
     </nav>
   </header>
 
-  <main id="home">
-    <section class="hero">
-      <h2>Digitize photos into embroidery files</h2>
-      <p>AI-style math turns your photos into stitch-ready designs. 100 % browser-based – nothing ever leaves your computer.</p>
-      <input type="file" id="imageLoader" accept="image/*" hidden />
-      <button id="uploadBtn">Upload photo</button>
-    </section>
-
-    <section id="workspace" hidden>
-      <div class="left">
-        <canvas id="sourceCanvas"></canvas>
+  <main class="hero">
+    <div class="hero__grid card">
+      <div class="hero__copy">
+        <h1>Digitize photos into<br/>embroidery files</h1>
+        <p class="lede">
+          Use AI-style math to convert your photos into embroidery designs with ease.
+          Upload a photo, refine the subject, add curved text, and export stitch files.
+          Runs entirely in your browser.
+        </p>
+        <figure class="hero__example">
+          <img src="assets/hero-photo.jpg" alt="Sweatshirt with embroidery" />
+        </figure>
+        <p><a class="btn btn--primary" href="editor.html">Upload photo</a></p>
       </div>
 
-      <div class="right">
-        <h3>General options</h3>
-        <label>Hoop size:
-          <select id="hoopSelect">
-            <option>4x4"</option>
-            <option>5x7"</option>
-            <option>6x10"</option>
-            <option>8x12"</option>
-          </select>
-        </label>
-
-        <label>Stitch length (mm):
-          <input type="range" id="stitchLen" min="1" max="5" step="0.1" value="2.5">
-          <span id="stitchLenVal">2.5</span>
-        </label>
-
-        <div class="tools">
-          <button id="btnPreview">Generate stitches</button>
-          <button id="btnDownloadDST">⬇ DST</button>
-          <button id="btnDownloadSVG">⬇ SVG</button>
-        </div>
+      <!-- inset untouched -->
+      <div class="hero__inset">
+        <img src="assets/hero-inset.jpg" alt="Inset sample" />
       </div>
-    </section>
-
-    <section id="features">
-      <h2>Features</h2>
-      <ul>
-        <li>Upload any photo – <strong>on-device</strong>, nothing leaves your browser.</li>
-        <li>Auto-highlight subject + manual Paint/Erase/Magic-wand refine.</li>
-        <li>Curved, draggable text with live preview.</li>
-        <li>Embroidery-hoop preview (4×4, 5×7, 6×10, 8×12) with scale control.</li>
-        <li>Direction/angle control with overlay.</li>
-        <li>Export PNG, SVG, Stitches JSON and <strong>DST</strong>.</li>
-        <li>Mobile-friendly, responsive UI.</li>
-      </ul>
-    </section>
-
-    <section id="pricing">
-      <h2>Pricing</h2>
-      <div class="card">
-        <h3>Free (Beta)</h3>
-        <p class="price">$0</p>
-        <ul>
-          <li>All editor tools</li>
-          <li>PNG / SVG / JSON / DST export</li>
-          <li>Runs locally</li>
-        </ul>
-        <button class="primary">Start free</button>
-      </div>
-    </section>
+    </div>
   </main>
 
-  <footer>
-    © 2025 Easbroidery – <a href="https://github.com/your-github/easbroidery-clone">open source</a>
-  </footer>
-
-  <script type="module" src="stitcher.js"></script>
+  <footer class="site-foot">© Easbroidery</footer>
 </body>
 </html>
