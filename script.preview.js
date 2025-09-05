@@ -1,16 +1,6 @@
 (function(){
   let hoop = '4x4';
-
-  let IMG_W = 1000, IMG_H = 740;
-  function syncImgSize(){
-    const ic = document.getElementById('imgCanvas');
-    if(ic){ IMG_W = ic.width||IMG_W; IMG_H = ic.height||IMG_H; }
-  }
-
   let showDir = false;
-
-  window.addEventListener('preview:hoop', e=>{ hoop = e.detail?.size || hoop; render('loomPreviewCanvas'); });
-  window.addEventListener('preview:showDirection', e=>{ showDir = !!e.detail?.enabled; render('loomPreviewCanvas'); });
 
   function hoopRect(w,h){ const pad=Math.min(w,h)*0.12; return {x:pad,y:pad,w:w-2*pad,h:h-2*pad,r:18}; }
   function rr(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
@@ -21,47 +11,40 @@
     const clampW=Math.max(26,w*0.065), clampH=Math.max(60,h*0.35); const cx=w-(m+clampW)+6, cy=h/2-clampH/2;
     ctx.fillStyle='#d9d7d6'; ctx.strokeStyle='#6b6766'; ctx.lineWidth=2; ctx.fillRect(cx,cy,clampW,clampH); ctx.strokeRect(cx,cy,clampW,clampH);
     ctx.beginPath(); ctx.fillStyle='#efc1b9'; ctx.arc(cx+clampW/2,cy+clampH/2,Math.max(8,clampW*0.25),0,Math.PI*2); ctx.fill();
-    const r=hoopRect(w,h); ctx.save(); ctx.beginPath(); rr(ctx,r.x,r.y,r.w,r.h,r.r); ctx.clip();
-    ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=1; const cols=4, rows=3;
-    for(let i=1;i<cols;i++){ const x=r.x+(r.w/cols)*i; ctx.beginPath(); ctx.moveTo(x,r.y); ctx.lineTo(x,r.y+r.h); ctx.stroke(); }
-    for(let j=1;j<rows;j++){ const y=r.y+(r.h/rows)*j; ctx.beginPath(); ctx.moveTo(r.x,y); ctx.lineTo(r.x+r.w,y); ctx.stroke(); }
-    ctx.restore();
-  }
-  
-  function drawStitches(ctx,w,h){
-    const pts = (window.__stitches||[]);
-    if(!pts.length) return;
-    ctx.save();
-    ctx.translate(0,0);
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#c66';
-    ctx.beginPath();
-    ctx.moveTo(pts[0][0]*(w/IMG_W), pts[0][1]*(h/IMG_H));
-    for(let i=1;i<pts.length;i++){
-      ctx.lineTo(pts[i][0]*(w/IMG_W), pts[i][1]*(h/IMG_H));
-    }
-    ctx.stroke();
-    ctx.restore();
   }
 
-    ctx.strokeStyle='rgba(80,80,80,.25)'; const step=Math.max(6, Math.min(r.w,r.h)/28); ctx.lineWidth=1;
-    const angleDeg = (()=>{ const el=document.getElementById('dirAngle'); return el?parseFloat(el.value||'45'):45; })();
-    const baseAng = showDir ? (Math.PI/180)*angleDeg : Math.PI/4;
-    for(let y=r.y; y<r.y+r.h; y+=step){
+  function drawStitches(ctx,w,h){
+    try{
+      const pts = (window.__stitches||[]);
+      if(!pts.length) return;
+      const ic = document.getElementById('imgCanvas');
+      const iw = Math.max(1, ic?.width || w);
+      const ih = Math.max(1, ic?.height|| h);
+      const sx = w/iw, sy = h/ih;
+
+      ctx.save();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#c66';
       ctx.beginPath();
-      for(let x=r.x; x<r.x+r.w; x+=step){
-        const len=step*0.9, dx=Math.cos(baseAng)*len*0.5, dy=Math.sin(baseAng)*len*0.5;
-        ctx.moveTo(x-dx,y-dy); ctx.lineTo(x+dx,y+dy);
+      ctx.moveTo(pts[0][0]*sx, pts[0][1]*sy);
+      for(let i=1;i<pts.length;i++){
+        ctx.lineTo(pts[i][0]*sx, pts[i][1]*sy);
       }
       ctx.stroke();
-    }
-    ctx.restore();
+      ctx.restore();
+    }catch(e){}
   }
-  window.addEventListener('stitches:update', ()=>{ syncImgSize(); render('loomPreviewCanvas'); });
+
   function render(targetId){
     const can=document.getElementById(targetId); if(!can) return;
-    syncImgSize(); const ctx=can.getContext('2d'); const w=can.width,h=can.height;
-    ctx.clearRect(0,0,w,h); drawHoop(ctx,w,h); drawStitches(ctx,w,h);
+    const ctx=can.getContext('2d'); const w=can.width,h=can.height;
+    ctx.clearRect(0,0,w,h); 
+    drawHoop(ctx,w,h); 
+    drawStitches(ctx,w,h);
   }
+
+  window.addEventListener('preview:hoop', e=>{ hoop = e.detail?.size || hoop; render('loomPreviewCanvas'); });
+  window.addEventListener('preview:showDirection', e=>{ showDir = !!e.detail?.enabled; render('loomPreviewCanvas'); });
+  window.addEventListener('stitches:update', ()=> render('loomPreviewCanvas'));
   window.renderLoomPreview = render;
 })();
