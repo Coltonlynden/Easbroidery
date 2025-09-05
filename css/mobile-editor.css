@@ -1,0 +1,159 @@
+/* Mobile editor layout. Desktop unchanged. */
+@media (min-width: 769px) {
+  #mobile-toolbar,
+  #mobile-settings-drawer {
+    display: none !important;
+  }
+}
+
+/* Phones and small tablets */
+@media (max-width: 768px) {
+  /* Hide typical desktop panels if present */
+  .editor-sidebar-left,
+  .editor-sidebar-right,
+  .top-toolbar,
+  .left-toolbar {
+    display: none !important;
+  }
+
+  /* Make the editor root fill the viewport */
+  html, body {
+    height: 100%;
+    overflow: hidden; /* prevent background scroll under drawer */
+  }
+
+  .editor-root,
+  .editor-layout,
+  .editor-main,
+  .canvas-container,
+  #canvas-stage {
+    height: 100%;
+  }
+
+  /* Reserve space for bottom toolbar */
+  .editor-main,
+  .canvas-container,
+  #canvas-stage {
+    position: relative;
+    padding-bottom: 64px; /* toolbar height */
+    box-sizing: border-box;
+  }
+
+  /* Center canvas content */
+  .canvas-container,
+  #canvas-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Bottom toolbar */
+  .lb-mobile-toolbar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 64px;
+    background: #ffffff;
+    border-top: 1px solid #d9d9d9;
+    z-index: 1000;
+    display: flex;
+    gap: 4px;
+    padding: 6px 8px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .lb-tool-btn {
+    appearance: none;
+    border: none;
+    background: transparent;
+    padding: 6px 8px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 11px;
+    line-height: 1;
+    min-width: 48px;
+  }
+
+  .lb-tool-btn:focus-visible {
+    outline: 2px solid #4d90fe;
+    outline-offset: 2px;
+  }
+
+  .lb-tool-btn.is-active {
+    background: #f1f5f9; /* subtle */
+  }
+
+  .lb-tool-text {
+    white-space: nowrap;
+  }
+
+  /* Simple icon squares. Replace with your real icons via background-image if desired */
+  .lb-icon {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+  }
+
+  /* Settings toggle distinct */
+  .lb-tool-settings-toggle {
+    border-left: 1px solid #e5e7eb;
+    padding-left: 12px;
+    margin-left: 4px;
+  }
+
+  /* Drawer */
+  .lb-mobile-settings {
+    position: fixed;
+    left: 0; right: 0; bottom: 64px; /* above toolbar */
+    max-height: 60vh;
+    background: #ffffff;
+    border-top: 1px solid #d9d9d9;
+    box-shadow: 0 -8px 20px rgba(0,0,0,0.08);
+    z-index: 1001;
+    transform: translateY(110%);
+    transition: transform 160ms ease-out;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .lb-mobile-settings.is-open {
+    transform: translateY(0%);
+  }
+
+  .lb-mobile-settings__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .lb-mobile-settings__title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .lb-close-btn {
+    appearance: none;
+    border: none;
+    background: transparent;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+  }
+  .lb-close-btn:focus-visible {
+    outline: 2px solid #4d90fe;
+    outline-offset: 2px;
+  }
+  .lb-i-close { border: 1px solid #cbd5e1; border-radius: 4px; width: 20px; height: 20px; }
+
+  .lb-mobile-settings__content {
+    overflow: auto;
+    padding: 10px 12px;
+    min-height: 120px;
+  }
+}
