@@ -289,7 +289,66 @@
     window.dispatchEvent(evt);
   }
 
-  function exportDST(){
+  
+  function downloadSVGFromStitches(pts){
+    const ic = document.getElementById('imgCanvas');
+    const w = ic?.width||1000, h = ic?.height||740;
+    if(!pts.length){
+      const empty = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"></svg>`;
+      return new Blob([empty], {type:'image/svg+xml'});
+    }
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for(let i=1;i<pts.length;i++){ d += ` L ${pts[i][0]} ${pts[i][1]}`; }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${d}" fill="none" stroke="#c66" stroke-width="1"/></svg>`;
+    return new Blob([svg], {type:'image/svg+xml'});
+  }
+  function downloadPNGFromStitches(pts){
+    const ic = document.getElementById('imgCanvas');
+    const w = ic?.width||1000, h = ic?.height||740;
+    const c = document.createElement('canvas');
+    c.width=w; c.height=h;
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,w,h);
+    // draw base image
+    const img = document.getElementById('imgLayer');
+    if(img && img.src) try{ ctx.drawImage(img,0,0,w,h); }catch{}
+    // draw stitches
+    if(pts.length){
+      ctx.lineWidth=2; ctx.strokeStyle='#c66';
+      ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+      for(let i=1;i<pts.length;i++){ ctx.lineTo(pts[i][0], pts[i][1]); }
+      ctx.stroke();
+    }
+    return new Promise(resolve=> c.toBlob(b=> resolve(b || new Blob()), 'image/png'));
+  }
+  async function exportFile(){
+    const pts = window.__stitches||[];
+    let name = prompt('Export filename (use .dst, .svg, or .png)', 'output.dst');
+    if(!name) return;
+    const ext = (name.split('.').pop()||'dst').toLowerCase();
+    let blob = null;
+    if(ext==='dst'){
+      const hoopSel = HOOP_SEL ? HOOP_SEL.value : '4x4';
+      const pxToMm = pxToMmFactory(IMG_CAN.width, IMG_CAN.height, hoopSel);
+      const dst = buildDST(pts, hoopSel.split('x').map(Number), pxToMm);
+      blob = new Blob([dst], {type:'application/octet-stream'});
+    } else if(ext==='svg'){
+      blob = downloadSVGFromStitches(pts);
+    } else if(ext==='png'){
+      blob = await downloadPNGFromStitches(pts);
+    } else {
+      alert('Unsupported extension. Use .dst, .svg, or .png');
+      return;
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  }
+  function exportDST(){ // kept for compatibility
+
     const pts = window.__stitches||[];
     const hoopSel = HOOP_SEL ? HOOP_SEL.value : '4x4';
     const pxToMm = pxToMmFactory(IMG_CAN.width, IMG_CAN.height, hoopSel);
@@ -304,7 +363,7 @@
   }
 
   document.getElementById('btnConvert')?.addEventListener('click', convert);
-  document.getElementById('exportBtn')?.addEventListener('click', exportDST);
+  document.getElementById('exportBtn')?.addEventListener('click', exportFile);
 
   // Also re-render preview hoop when size changes
   HOOP_SEL?.addEventListener('change', e=>{

@@ -117,6 +117,13 @@
     if(!inside) modal.close();
   });
 
+  // Auto wiring
+
+  // Auto subject
+  by('autoBtn')?.addEventListener('click', ()=>{
+    window.dispatchEvent(new CustomEvent('select:auto'));
+  });
+
   // Init
   window.addEventListener('load', ()=>{
     by('maskCanvas')?.classList.add('is-hidden');

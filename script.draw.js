@@ -98,6 +98,45 @@
   window.addEventListener('shape:select', e=>{ shapeType = e.detail?.shape || 'rect'; });
   window.addEventListener('shape:stroke', e=>{ shapeStroke = +e.detail?.width || 0; });
 
+  
+  // Auto subject selection via luminance Otsu
+  function autoSelectFromImage(){
+    if (!imgC.width || !imgC.height) return;
+    const ctx = imgC.getContext('2d', { willReadFrequently:true });
+    const img = ctx.getImageData(0,0,imgC.width,imgC.height);
+    const gray = new Uint8ClampedArray(img.width*img.height);
+    for(let i=0,g=0;i<img.data.length;i+=4){
+      gray[g++] = Math.max(0, Math.min(255, Math.round(img.data[i]*0.2126 + img.data[i+1]*0.7152 + img.data[i+2]*0.0722)));
+    }
+    // Otsu
+    const hist = new Uint32Array(256);
+    for(let i=0;i<gray.length;i++) hist[gray[i]]++;
+    const total = gray.length;
+    let sum=0; for(let t=0;t<256;t++) sum += t*hist[t];
+    let sumB=0, wB=0, varMax=0, thr=127;
+    for(let t=0;t<256;t++){
+      wB += hist[t]; if(!wB) continue;
+      const wF = total - wB; if(!wF) break;
+      sumB += t*hist[t];
+      const mB = sumB / wB;
+      const mF = (sum - sumB) / wF;
+      const between = wB*wF*(mB-mF)*(mB-mF);
+      if(between > varMax){ varMax=between; thr=t; }
+    }
+    const mctx = maskC.getContext('2d', { willReadFrequently:true });
+    const mask = mctx.getImageData(0,0,imgC.width,imgC.height);
+    for(let i=0,g=0;i<mask.data.length;i+=4){
+      const v = gray[g++] < thr ? 255 : 0;
+      mask.data[i]=0; mask.data[i+1]=0; mask.data[i+2]=0; mask.data[i+3]=v;
+    }
+    mctx.putImageData(mask,0,0);
+    maskC.classList.remove('is-hidden');
+    selectionActive = true;
+    emitSelectionState(true);
+    redraw();
+  }
+  window.addEventListener('select:auto', autoSelectFromImage);
+
   // pointer helpers
   function xyFromEvent(ev){
     const rect = imgC.getBoundingClientRect();

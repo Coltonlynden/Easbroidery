@@ -1,5 +1,12 @@
 (function(){
   let hoop = '4x4';
+
+  let IMG_W = 1000, IMG_H = 740;
+  function syncImgSize(){
+    const ic = document.getElementById('imgCanvas');
+    if(ic){ IMG_W = ic.width||IMG_W; IMG_H = ic.height||IMG_H; }
+  }
+
   let showDir = false;
 
   window.addEventListener('preview:hoop', e=>{ hoop = e.detail?.size || hoop; render('loomPreviewCanvas'); });
@@ -20,10 +27,23 @@
     for(let j=1;j<rows;j++){ const y=r.y+(r.h/rows)*j; ctx.beginPath(); ctx.moveTo(r.x,y); ctx.lineTo(r.x+r.w,y); ctx.stroke(); }
     ctx.restore();
   }
+  
   function drawStitches(ctx,w,h){
-    const src=document.getElementById('imgCanvas'); const r=hoopRect(w,h);
-    ctx.save(); ctx.beginPath(); rr(ctx,r.x,r.y,r.w,r.h,r.r); ctx.clip();
-    try{ ctx.drawImage(src,r.x,r.y,r.w,r.h); }catch{}
+    const pts = (window.__stitches||[]);
+    if(!pts.length) return;
+    ctx.save();
+    ctx.translate(0,0);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#c66';
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0]*(w/IMG_W), pts[0][1]*(h/IMG_H));
+    for(let i=1;i<pts.length;i++){
+      ctx.lineTo(pts[i][0]*(w/IMG_W), pts[i][1]*(h/IMG_H));
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
     ctx.strokeStyle='rgba(80,80,80,.25)'; const step=Math.max(6, Math.min(r.w,r.h)/28); ctx.lineWidth=1;
     const angleDeg = (()=>{ const el=document.getElementById('dirAngle'); return el?parseFloat(el.value||'45'):45; })();
     const baseAng = showDir ? (Math.PI/180)*angleDeg : Math.PI/4;
@@ -37,9 +57,10 @@
     }
     ctx.restore();
   }
+  window.addEventListener('stitches:update', ()=>{ syncImgSize(); render('loomPreviewCanvas'); });
   function render(targetId){
     const can=document.getElementById(targetId); if(!can) return;
-    const ctx=can.getContext('2d'); const w=can.width,h=can.height;
+    syncImgSize(); const ctx=can.getContext('2d'); const w=can.width,h=can.height;
     ctx.clearRect(0,0,w,h); drawHoop(ctx,w,h); drawStitches(ctx,w,h);
   }
   window.renderLoomPreview = render;
